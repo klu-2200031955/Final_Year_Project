@@ -4,12 +4,13 @@ import {
   AuthenticationDetails,
   CognitoUserAttribute
 } from 'amazon-cognito-identity-js';
+import config from './config';
 
 import { jwtDecode } from 'jwt-decode';
 
 const poolData = {
-  UserPoolId: 'us-east-1_oQDPYwZRQ',    
-  ClientId: '2in96t01ugruhtc791cgqdrp2k' 
+  UserPoolId: config.userPoolId , 
+  ClientId: config.clientId  
 };
 
 const userPool = new CognitoUserPool(poolData);

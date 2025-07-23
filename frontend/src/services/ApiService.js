@@ -1,7 +1,8 @@
 import AuthService from './AuthService';
+import config from './config';
 
 class ApiService {
-  static baseUrl = 'https://ngzz1xf9el.execute-api.us-east-1.amazonaws.com/prod';
+  static baseUrl = `https://${config.BasrUrlId}.execute-api.us-east-1.amazonaws.com/prod`;
 
   static async makeRequest(endpoint, options = {}) {
     const token = AuthService.getAuthToken();
