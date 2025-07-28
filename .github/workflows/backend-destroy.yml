@@ -1,7 +1,7 @@
 name: Destroy Backend Infrastructure
 
 on:
-  workflow_dispatch:  # Manual trigger via GitHub UI
+  workflow_dispatch:
 
 jobs:
   destroy:
@@ -24,6 +24,9 @@ jobs:
 
       - name: Terraform Init
         run: terraform init
+
+      - name: Terraform Show (for debug)
+        run: terraform show
 
       - name: Terraform Destroy
         run: terraform destroy -auto-approve
