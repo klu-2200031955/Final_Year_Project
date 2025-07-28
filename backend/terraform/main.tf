@@ -430,3 +430,5 @@ resource "aws_api_gateway_stage" "production" {
   rest_api_id   = aws_api_gateway_rest_api.inventory_api.id
   stage_name    = "prod"
 }
+
+#check
