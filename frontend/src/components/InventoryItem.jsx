@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Trash2, Package, Tag, Calendar, AlertTriangle, Edit } from 'lucide-react';
 
-const InventoryItem = ({ item, onDelete, onUpdate }) => {
+const InventoryItem = ({ item, onDelete, onUpdate, onQuantityChange }) => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
 
@@ -14,6 +14,13 @@ const InventoryItem = ({ item, onDelete, onUpdate }) => {
     } finally {
       setIsDeleting(false);
       setShowConfirm(false);
+    }
+  };
+
+  const updateQuantity = (delta) => {
+    const newQuantity = item.quantity + delta;
+    if (newQuantity >= 0) {
+      onQuantityChange(item.id, { ...item, quantity: newQuantity });
     }
   };
 
@@ -54,9 +61,22 @@ const InventoryItem = ({ item, onDelete, onUpdate }) => {
             <Tag className="h-4 w-4" />
             <span>{item.category}</span>
           </div>
-          <div className="text-right">
-            <p className="text-2xl font-bold text-gray-900">{item.quantity}</p>
-            <p className="text-xs text-gray-500">units</p>
+
+          {/* Quantity with -/+ buttons */}
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={() => updateQuantity(-1)}
+              className="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300"
+              disabled={item.quantity === 0}
+            >−</button>
+            <div className="text-center">
+              <p className="text-2xl font-bold text-gray-900">{item.quantity}</p>
+              <p className="text-xs text-gray-500">units</p>
+            </div>
+            <button
+              onClick={() => updateQuantity(1)}
+              className="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300"
+            >+</button>
           </div>
         </div>
 

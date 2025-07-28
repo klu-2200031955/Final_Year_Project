@@ -4,6 +4,12 @@ const { DynamoDBDocumentClient, GetCommand, UpdateCommand } = require('@aws-sdk/
 const db = DynamoDBDocumentClient.from(new DynamoDBClient());
 
 exports.handler = async (event) => {
+  const headers = {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Headers": "*",
+    "Access-Control-Allow-Methods": "GET, POST, OPTIONS, PUT, DELETE"
+  };
+
   const body = typeof event.body === 'string' ? JSON.parse(event.body) : event.body;
   const itemId = event.pathParameters?.id || body?.id;
   const claims = event.requestContext?.authorizer?.claims;
@@ -12,6 +18,7 @@ exports.handler = async (event) => {
   if (!itemId || !userId) {
     return {
       statusCode: 400,
+      headers,
       body: JSON.stringify({ message: "Missing item ID or user not authenticated" })
     };
   }
@@ -27,11 +34,12 @@ exports.handler = async (event) => {
     if (!itemResult.Item) {
       return {
         statusCode: 404,
+        headers,
         body: JSON.stringify({ message: "Item not found or unauthorized" })
       };
     }
 
-    const { id, ...updates } = body;
+    const { id, userId: _omitUserId,...updates } = body;
     const updateExpr = [];
     const ExpressionAttributeNames = {};
     const ExpressionAttributeValues = {};
@@ -45,6 +53,7 @@ exports.handler = async (event) => {
     if (updateExpr.length === 0) {
       return {
         statusCode: 400,
+        headers,
         body: JSON.stringify({ message: "No fields to update" })
       };
     }
@@ -62,17 +71,14 @@ exports.handler = async (event) => {
 
     return {
       statusCode: 200,
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Headers": "*",
-        "Access-Control-Allow-Methods": "GET, POST, OPTIONS,PUT, DELETE"
-      },
+      headers,
       body: JSON.stringify(updateResult.Attributes)
     };
   } catch (err) {
     console.error("Error updating item:", err);
     return {
       statusCode: 500,
+      headers,
       body: JSON.stringify({ message: "Internal Server Error", error: err.message })
     };
   }

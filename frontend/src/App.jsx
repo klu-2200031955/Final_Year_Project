@@ -166,6 +166,19 @@ function App() {
     }
   };
 
+  const handleQuantityChange = async (itemId, updatedItem) => {
+  try {
+      const updated = await ApiService.updateInventoryItem(updatedItem);
+      setInventory(prev =>
+        prev.map(item => item.id === itemId ? updated : item)
+      );
+      showNotification(`Updated quantity to ${updated.quantity}.`, 'success');
+    } catch (error) {
+      showNotification('Failed to update quantity.', 'error');
+      console.error('Quantity update error:', error);
+    }
+  };
+
 
   const showNotification = (message, type) => {
     setNotification({ message, type });
@@ -285,6 +298,7 @@ function App() {
           loading={loading}
           onDeleteItem={handleDeleteItem}
           onEditItem={handleEditItem}
+          onQuantityChange={handleQuantityChange}
           searchTerm={searchTerm}
         />
       </main>

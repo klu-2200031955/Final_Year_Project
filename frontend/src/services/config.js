@@ -1,6 +1,6 @@
 const config = {
-    userPoolId: 'us-east-1_bdXZn4BZk',
-    clientId: '7eqg2bf5m4clk37l27bskt78kb',
-    BasrUrlId : 'bxyq41ftq5'
+    userPoolId: import.meta.env.VITE_USER_POOL_ID,
+    clientId: import.meta.env.VITE_CLIENT_ID,
+    BasrUrlId : import.meta.env.VITE_BASE_URL_ID
 };
 export default config;

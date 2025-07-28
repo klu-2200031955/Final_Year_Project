@@ -2,7 +2,7 @@ import React from 'react';
 import { Package, Search, Trash2, AlertTriangle } from 'lucide-react';
 import InventoryItem from './InventoryItem';
 
-const InventoryList = ({ inventory, loading, onDeleteItem, onEditItem, searchTerm }) => {
+const InventoryList = ({ inventory, loading, onDeleteItem, onEditItem, searchTerm, onQuantityChange }) => {
   if (loading) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -48,6 +48,7 @@ const InventoryList = ({ inventory, loading, onDeleteItem, onEditItem, searchTer
           key={item.id}
           item={item}
           onDelete={onDeleteItem}
+          onQuantityChange={onQuantityChange}
           onUpdate={onEditItem}
         />
       ))}

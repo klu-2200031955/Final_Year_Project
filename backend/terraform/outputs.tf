@@ -8,7 +8,7 @@ output "get_items_lambda_arn" {
 
 output "base_url" {
   description = "Base URL for API Gateway"
-  value       = "https://${aws_api_gateway_rest_api.inventory_api.id}.execute-api.${var.aws_region}.amazonaws.com/${aws_api_gateway_stage.production.stage_name}"
+  value       = aws_api_gateway_rest_api.inventory_api.id
 }
 
 output "user_pool_id" {
