@@ -3,7 +3,7 @@ name: Backend CI/CD
 on:
   push:
     paths:
-      - 'backend/terraform/**'
+      - 'backend/**'
     branches:
       - main
 
