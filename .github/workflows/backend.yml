@@ -42,16 +42,8 @@ jobs:
 
       - name: Terraform Init
         working-directory: backend/terraform
-        run: |
-          terraform init \
-            -backend-config="bucket=inventory-terraform-state-bucket" \
-            -backend-config="key=terraform.tfstate" \
-            -backend-config="region=us-east-1" \
-            -backend-config="dynamodb_table=terraform-lock-table" \
-            -backend-config="encrypt=true"
+        run: terraform init 
         
-
-
       - name: Terraform Apply
         working-directory: backend/terraform
         run: terraform apply -auto-approve

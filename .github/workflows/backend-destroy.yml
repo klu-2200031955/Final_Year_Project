@@ -1,33 +1,37 @@
-name: Destroy Backend Infrastructure
+name: Terraform Cleanup
 
 on:
   workflow_dispatch:
 
 jobs:
-  terraform-destroy:
+  terraform-cleanup:
+    name: 'Post Apply Cleanup'
     runs-on: ubuntu-latest
 
     env:
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: 'us-east-1'
+      TF_VERSION: '1.4.0'
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+    - name: 'Checkout GitHub repository'
+      uses: actions/checkout@v2
 
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: 1.6.6
+    - name: 'Configure AWS credentials'
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
-      - name: Initialize Terraform
-        working-directory: backend/terraform
-        run: terraform init -backend-config="bucket=inventory-terraform-state-bucket" \
-                             -backend-config="key=terraform.tfstate" \
-                             -backend-config="region=ap-south-1" \
-                             -backend-config="dynamodb_table=terraform-lock-table" \
-                             -backend-config="encrypt=true"
+    - name: 'Set up Terraform'
+      uses: hashicorp/setup-terraform@v1
+      with:
+        terraform_version: 1.6.6
 
-      - name: Terraform Destroy
-        working-directory: backend/terraform
-        run: terraform destroy -auto-approve
+    - name: 'Terraform Init'
+      run: terraform init
+
+    - name: 'Terraform Plan Destroy'
+      run: terraform plan -destroy -out=tfplan-destroy
+
+    - name: 'Terraform Apply Destroy'
+      run: terraform apply -auto-approve tfplan-destroy
