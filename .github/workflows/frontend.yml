@@ -1,13 +1,14 @@
 name: Frontend Deploy
 
 on:
-  push:
-    paths:
-      - 'frontend/**'
-      - '.github/workflows/frontend.yml'
+  workflow_run:
+    workflows: ["Backend Deploy (Terraform)"]
+    types:
+      - completed
 
 jobs:
   build-and-deploy:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
 
     env:
