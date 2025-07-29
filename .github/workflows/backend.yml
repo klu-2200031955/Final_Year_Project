@@ -50,9 +50,9 @@ jobs:
 
           netlify link --id $NETLIFY_SITE_ID
 
-          netlify env:set VITE_API_BASE_URL "$BASE_URL"
-          netlify env:set VITE_COGNITO_USER_POOL_ID "$USER_POOL_ID"
-          netlify env:set VITE_COGNITO_CLIENT_ID "$USER_POOL_CLIENT_ID"
+          netlify env:set VITE_BASE_URL "$BASE_URL"
+          netlify env:set VITE_USER_POOL_ID "$USER_POOL_ID"
+          netlify env:set VITE_CLIENT_ID "$USER_POOL_CLIENT_ID"
 
       
       - name: Trigger Netlify Build (Optional)
