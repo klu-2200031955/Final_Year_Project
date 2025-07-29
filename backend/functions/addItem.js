@@ -6,7 +6,6 @@ const db = DynamoDBDocumentClient.from(client);
 
 exports.handler = async (event) => {
   const body = JSON.parse(event.body);
-  
   const claims = event.requestContext.authorizer?.claims;
   const userId = claims?.sub;         
   const userEmail = claims?.email;    

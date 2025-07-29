@@ -64,7 +64,3 @@ jobs:
           netlify env:set VITE_BASE_URL_ID "$BASE_URL"
           netlify env:set VITE_USER_POOL_ID "$USER_POOL_ID"
           netlify env:set VITE_CLIENT_ID "$USER_POOL_CLIENT_ID"
-
-      - name: Trigger Netlify Build
-        run: |
-          curl -X POST https://api.netlify.com/build_hooks/688833b6aa195dc57aaa0cb1
