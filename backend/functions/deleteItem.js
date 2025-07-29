@@ -16,7 +16,6 @@ exports.handler = async (event) => {
     };
   }
 
-  // Step 1: Verify item belongs to this user
   const getParams = {
     TableName: process.env.TABLE_NAME,
     Key: { userId, id: itemId }
@@ -31,8 +30,7 @@ exports.handler = async (event) => {
         body: JSON.stringify({ message: "Item not found or unauthorized" })
       };
     }
-
-    // Step 2: Delete item
+    
     const deleteParams = {
       TableName: process.env.TABLE_NAME,
       Key: { userId, id: itemId }
