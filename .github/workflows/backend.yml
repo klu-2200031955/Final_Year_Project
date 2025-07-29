@@ -46,9 +46,10 @@ jobs:
           terraform init \
             -backend-config="bucket=inventory-terraform-state-bucket" \
             -backend-config="key=terraform.tfstate" \
-            -backend-config="region=ap-south-1" \
+            -backend-config="region=us-east-1" \
             -backend-config="dynamodb_table=terraform-lock-table" \
             -backend-config="encrypt=true"
+        
 
 
       - name: Terraform Apply
