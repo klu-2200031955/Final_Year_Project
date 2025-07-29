@@ -1,45 +1,58 @@
-name: Backend CI/CD
+name: Backend Deploy (Terraform)
 
 on:
   push:
     paths:
-      - 'backend/**'
-    branches:
-      - main
+      - 'backend/terraform/**'
+      - '.github/workflows/backend.yml'
 
 jobs:
   terraform:
     runs-on: ubuntu-latest
 
-    defaults:
-      run:
-        working-directory: backend/terraform
-
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+      NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
-
-      - name: Terraform Init & Apply
-        run: terraform init && terraform apply -auto-approve
-
-      - name: Generate .env for Frontend
-        run: |
-          echo "VITE_USER_POOL_ID=$(terraform output -raw user_pool_id)" > $GITHUB_WORKSPACE/frontend/.env
-          echo "VITE_CLIENT_ID=$(terraform output -raw user_pool_client_id)" >> $GITHUB_WORKSPACE/frontend/.env
-          echo "VITE_BASE_URL_ID=$(terraform output -raw base_url)" >> $GITHUB_WORKSPACE/frontend/.env
-
-      - name: Debug .env File
-        run: cat $GITHUB_WORKSPACE/frontend/.env
-
-      - name: Upload .env to artifact
-        uses: actions/upload-artifact@v4
         with:
-          name: frontend-env
-          path: ${{ github.workspace }}/frontend/.env
+          terraform_version: 1.6.6
+
+      - name: Terraform Init
+        working-directory: backend/terraform
+        run: terraform init
+
+      - name: Terraform Apply
+        working-directory: backend/terraform
+        run: terraform apply -auto-approve
+
+      - name: Extract Terraform Output
+        id: tf_output
+        working-directory: backend/terraform
+        run: |
+          terraform output -json > output.json
+          echo "BASE_URL=$(jq -r '.base_url.value' output.json)" >> $GITHUB_ENV
+          echo "USER_POOL_ID=$(jq -r '.user_pool_id.value' output.json)" >> $GITHUB_ENV
+          echo "USER_POOL_CLIENT_ID=$(jq -r '.user_pool_client_id.value' output.json)" >> $GITHUB_ENV
+
+      - name: Update Netlify Env Variables
+        run: |
+          curl -X PATCH https://api.netlify.com/api/v1/sites/${NETLIFY_SITE_ID} \
+          -H "Authorization: Bearer ${NETLIFY_AUTH_TOKEN}" \
+          -H "Content-Type: application/json" \
+          --data '{
+            "build_settings": {
+              "env": {
+                "VITE_API_BASE_URL": "'"${BASE_URL}"'",
+                "VITE_COGNITO_USER_POOL_ID": "'"${USER_POOL_ID}"'",
+                "VITE_COGNITO_CLIENT_ID": "'"${USER_POOL_CLIENT_ID}"'"
+              }
+            }
+          }'
