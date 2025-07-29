@@ -2,7 +2,6 @@ provider "aws" {
   region = var.aws_region
 }
 
-## IAM Role ##
 resource "aws_iam_role" "lambda_exec_role" {
   name = "inventory_lambda_exec_role"
 

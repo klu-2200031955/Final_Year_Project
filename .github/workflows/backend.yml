@@ -42,17 +42,16 @@ jobs:
           echo "USER_POOL_ID=$(jq -r '.user_pool_id.value' output.json)" >> $GITHUB_ENV
           echo "USER_POOL_CLIENT_ID=$(jq -r '.user_pool_client_id.value' output.json)" >> $GITHUB_ENV
 
-      - name: Update Netlify Env Variables
+      - name: Update Netlify Environment Variables (New API)
         run: |
-          curl -X PATCH https://api.netlify.com/api/v1/sites/${NETLIFY_SITE_ID} \
-          -H "Authorization: Bearer ${NETLIFY_AUTH_TOKEN}" \
-          -H "Content-Type: application/json" \
-          --data '{
-            "build_settings": {
-              "env": {
-                "VITE_API_BASE_URL": "'"${BASE_URL}"'",
-                "VITE_COGNITO_USER_POOL_ID": "'"${USER_POOL_ID}"'",
-                "VITE_COGNITO_CLIENT_ID": "'"${USER_POOL_CLIENT_ID}"'"
-              }
-            }
-          }'
+          for var in VITE_API_BASE_URL=$BASE_URL VITE_COGNITO_USER_POOL_ID=$USER_POOL_ID VITE_COGNITO_CLIENT_ID=$USER_POOL_CLIENT_ID; do
+            IFS='=' read -r key value <<< "$var"
+            curl -X PUT "https://api.netlify.com/api/v1/sites/${NETLIFY_SITE_ID}/environment_variables/${key}" \
+              -H "Authorization: Bearer ${NETLIFY_AUTH_TOKEN}" \
+              -H "Content-Type: application/json" \
+              --data '{
+                "value": "'"${value}"'",
+                "scopes": ["builds"]
+              }'
+          done
+
