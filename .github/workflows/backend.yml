@@ -5,7 +5,7 @@ on:
     paths:
       - 'backend/terraform/**'
       - 'backend/functions/**'
-      - '.github/workflows/backend.yml'
+      # - '.github/workflows/backend.yml'
 
 jobs:
   terraform:
