@@ -1,5 +1,42 @@
+
+terraform {
+  backend "s3" {
+    bucket         = "inventory-terraform-state-bucket"
+    key            = "terraform.tfstate"
+    region         = "ap-south-1"
+    encrypt        = true
+    dynamodb_table = "terraform-lock-table"
+  }
+}
+
 provider "aws" {
   region = var.aws_region
+}
+
+resource "aws_s3_bucket" "terraform_state" {
+  bucket = "inventory-terraform-state-bucket"
+  force_destroy = true
+
+  tags = {
+    Name        = "TerraformStateBucket"
+    Environment = "Production"
+  }
+}
+
+resource "aws_dynamodb_table" "terraform_lock" {
+  name         = "terraform-lock-table"
+  billing_mode = "PAY_PER_REQUEST"
+  hash_key     = "LockID"
+
+  attribute {
+    name = "LockID"
+    type = "S"
+  }
+
+  tags = {
+    Name        = "TerraformLockTable"
+    Environment = "Production"
+  }
 }
 
 ## IAM Role ##

@@ -42,7 +42,11 @@ jobs:
 
       - name: Terraform Init
         working-directory: backend/terraform
-        run: terraform init
+        run: terraform init -backend-config="bucket=inventory-terraform-state-bucket" \
+                             -backend-config="key=terraform.tfstate" \
+                             -backend-config="region=ap-south-1" \
+                             -backend-config="dynamodb_table=terraform-lock-table" \
+                             -backend-config="encrypt=true"
 
       - name: Terraform Apply
         working-directory: backend/terraform
@@ -68,11 +72,3 @@ jobs:
       - name: Trigger Netlify Build
         run: |
           curl -X POST https://api.netlify.com/build_hooks/688833b6aa195dc57aaa0cb1
-
-      - name: Upload Terraform State File
-        uses: actions/upload-artifact@v4
-        with:
-          name: terraform-state
-          path: |
-            backend/terraform/terraform.tfstate
-            backend/terraform/terraform.tfstate.backup

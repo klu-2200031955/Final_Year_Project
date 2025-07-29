@@ -15,15 +15,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Download Terraform State
-        uses: actions/download-artifact@v4
-        with:
-          name: terraform-state
-          path: backend/terraform
-
-      - name: Debug state presence
-        run: ls -al backend/terraform
-
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
@@ -31,7 +22,11 @@ jobs:
 
       - name: Initialize Terraform
         working-directory: backend/terraform
-        run: terraform init
+        run: terraform init -backend-config="bucket=inventory-terraform-state-bucket" \
+                             -backend-config="key=terraform.tfstate" \
+                             -backend-config="region=ap-south-1" \
+                             -backend-config="dynamodb_table=terraform-lock-table" \
+                             -backend-config="encrypt=true"
 
       - name: Terraform Destroy
         working-directory: backend/terraform
