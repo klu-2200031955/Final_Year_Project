@@ -31,16 +31,15 @@ jobs:
 
       - name: Generate .env for Frontend
         run: |
-          echo "VITE_USER_POOL_ID=$(terraform output -raw user_pool_id)" > ../../frontend/.env
-          echo "VITE_CLIENT_ID=$(terraform output -raw user_pool_client_id)" >> ../../frontend/.env
-          echo "VITE_BASE_URL_ID=$(terraform output -raw base_url)" >> ../../frontend/.env
+          echo "VITE_USER_POOL_ID=$(terraform output -raw user_pool_id)" > ${{ github.workspace }}/frontend/.env
+          echo "VITE_CLIENT_ID=$(terraform output -raw user_pool_client_id)" >> ${{ github.workspace }}/frontend/.env
+          echo "VITE_BASE_URL_ID=$(terraform output -raw base_url)" >> ${{ github.workspace }}/frontend/.env
 
       - name: Debug .env File
-        run: cat ../../frontend/.env
+        run: cat ${{ github.workspace }}/frontend/.env
 
       - name: Upload .env to artifact
         uses: actions/upload-artifact@v4
         with:
           name: frontend-env
-          path: ${{ github.workspace }}/frontend/.env  
-
+          path: ${{ github.workspace }}/frontend/.env
