@@ -29,11 +29,10 @@ jobs:
       - name: Zip Lambda Functions
         run: |
           mkdir -p backend/terraform/functions
-          for fn in addItem getItems updateItem deleteItem; do
-            cd backend/functions/$fn
-            npm ci
-            zip -r ../../../terraform/functions/$fn.zip .
-            cd -
+          cd backend/functions
+          for fn in *.js; do
+            name=$(basename "$fn" .js)
+            zip -j "../terraform/functions/$name.zip" "$fn"
           done
 
       - name: Setup Terraform
