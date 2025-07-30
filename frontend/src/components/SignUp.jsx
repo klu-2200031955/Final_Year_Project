@@ -59,14 +59,37 @@ const SignUp = ({
 
   const validate = () => {
     const newErrors = {};
-    if (!formData.name) newErrors.name = 'Full name is required';
-    if (!formData.email) newErrors.email = 'Email is required';
-    else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = 'Email address is invalid';
-    if (!formData.phone) newErrors.phone = 'Phone number is required';
-    else if (!/^\d{10}$/.test(formData.phone)) newErrors.phone = 'Phone number must be 10 digits';
-    if (!formData.password) newErrors.password = 'Password is required';
-    else if (formData.password.length < 8) newErrors.password = 'Password must be at least 8 characters';
-    if (formData.password !== formData.confirmPassword) newErrors.confirmPassword = 'Passwords do not match';
+
+    if (!formData.name.trim()) newErrors.name = 'Full name is required';
+
+    if (!formData.email) {
+      newErrors.email = 'Email is required';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = 'Email address is invalid';
+    }
+
+    if (!formData.phone) {
+      newErrors.phone = 'Phone number is required';
+    } else if (!/^\d{10}$/.test(formData.phone)) {
+      newErrors.phone = 'Phone number must be exactly 10 digits';
+    }
+
+    if (!formData.password) {
+      newErrors.password = 'Password is required';
+    } else if (formData.password.length < 8) {
+      newErrors.password = 'Password must be at least 8 characters';
+    } else if (!/[A-Z]/.test(formData.password)) {
+      newErrors.password = 'Password must contain at least one uppercase letter';
+    } else if (!/[a-z]/.test(formData.password)) {
+      newErrors.password = 'Password must contain at least one lowercase letter';
+    } else if (!/[0-9]/.test(formData.password)) {
+      newErrors.password = 'Password must contain at least one number';
+    }
+
+    if (formData.password !== formData.confirmPassword) {
+      newErrors.confirmPassword = 'Passwords do not match';
+    }
+
     return newErrors;
   };
 
@@ -74,13 +97,18 @@ const SignUp = ({
     e.preventDefault();
     const newErrors = validate();
     setErrors(newErrors);
+
     if (Object.keys(newErrors).length === 0) {
       setLoading(true);
       try {
-        localStorage.setItem('signup_email', formData.email); // Save it during sign-up
+        localStorage.setItem('signup_email', formData.email);
         await onSignUp(formData);
       } catch (error) {
-        setErrors({ submit: error.message || 'Sign up failed.' });
+        if (error.code === 'UsernameExistsException') {
+          setErrors({ email: 'An account with this email already exists.' });
+        } else {
+          setErrors({ submit: error.message || 'Sign up failed.' });
+        }
       } finally {
         setLoading(false);
       }
@@ -137,13 +165,18 @@ const SignUp = ({
             </div>
             <div className="bg-white p-8 rounded-2xl shadow-lg">
               <form onSubmit={handleSubmit} className="space-y-5">
+
+                {errors.submit && (
+                  <p className="text-sm text-red-600 bg-red-100 border border-red-300 rounded p-2 text-center">
+                    {errors.submit}
+                  </p>
+                )}
+
                 <InputField icon={UserSquare} type="text" name="name" placeholder="Full Name" value={formData.name} onChange={handleChange} error={errors.name} />
                 <InputField icon={Mail} type="email" name="email" placeholder="Email Address" value={formData.email} onChange={handleChange} error={errors.email} />
                 <InputField icon={Phone} type="tel" name="phone" placeholder="Phone Number" value={formData.phone} onChange={handleChange} error={errors.phone} />
                 <PasswordField icon={Lock} name="password" placeholder="Password" value={formData.password} onChange={handleChange} error={errors.password} isVisible={showPass} onToggleVisibility={() => setShowPass(!showPass)} />
                 <PasswordField icon={Lock} name="confirmPassword" placeholder="Confirm Password" value={formData.confirmPassword} onChange={handleChange} error={errors.confirmPassword} isVisible={showConfirmPass} onToggleVisibility={() => setShowConfirmPass(!showConfirmPass)} />
-
-                {errors.submit && <p className="text-sm text-red-600 text-center">{errors.submit}</p>}
 
                 <button type="submit" disabled={loading} className="w-full mt-6 py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-md transition-transform transform hover:scale-105 disabled:opacity-50">
                   {loading ? 'Creating Account...' : 'Sign Up'}

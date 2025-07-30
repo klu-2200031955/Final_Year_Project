@@ -245,8 +245,8 @@ function App() {
               <Package className="h-8 w-8 text-white" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold">Inventory Manager</h1>
-              <p className="text-sm text-gray-500">Serverless Inventory System</p>
+              <h1 className="text-2xl font-bold">RetailMate</h1>
+              <p className="text-sm text-gray-500">Smart Inventory. Seamless Retail.</p>
             </div>
           </div>
           <div className="flex items-center space-x-4">
