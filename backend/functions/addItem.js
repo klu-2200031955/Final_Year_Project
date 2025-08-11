@@ -10,7 +10,6 @@ exports.handler = async (event) => {
   const claims = event.requestContext.authorizer?.claims;
   const userId = claims?.sub;         
   const userEmail = claims?.email;    
-
   if (!userId) {
     return {
       statusCode: 400,
