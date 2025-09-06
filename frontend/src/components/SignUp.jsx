@@ -101,7 +101,7 @@ const SignUp = ({
     if (Object.keys(newErrors).length === 0) {
       setLoading(true);
       try {
-        localStorage.setItem('signup_email', formData.email);
+        sessionStorage.setItem('signup_email', formData.email);
         await onSignUp(formData);
       } catch (error) {
         if (error.code === 'UsernameExistsException') {

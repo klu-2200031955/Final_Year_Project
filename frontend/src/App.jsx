@@ -85,7 +85,7 @@ function App() {
   };
 
   const handleConfirmSignUp = async (code) => {
-    const email = localStorage.getItem('signup_email'); // ✅ retrieve email here
+    const email = sessionStorage.getItem('signup_email'); // ✅ retrieve email here
     if (!email || !confirmationCode) {
       console.error("Missing email or confirmation code");
       return;

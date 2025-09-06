@@ -73,8 +73,8 @@ export default class AuthService {
             userId // or sub
           };
 
-          localStorage.setItem('auth_user', JSON.stringify(userData));
-          localStorage.setItem('auth_token', idToken); 
+          sessionStorage.setItem('auth_user', JSON.stringify(userData));
+          sessionStorage.setItem('auth_token', idToken); 
           resolve(userData);
         },
         onFailure: err => {
@@ -85,7 +85,7 @@ export default class AuthService {
   }
 
   static async signOut() {
-    const storedUser = JSON.parse(localStorage.getItem('auth_user'));
+    const storedUser = JSON.parse(sessionStorage.getItem('auth_user'));
     if (storedUser) {
       const user = new CognitoUser({
         Username: storedUser.email,
@@ -93,14 +93,14 @@ export default class AuthService {
       });
       user.signOut();
     }
-    localStorage.removeItem('auth_user');
-    localStorage.removeItem('auth_token');
+    sessionStorage.removeItem('auth_user');
+    sessionStorage.removeItem('auth_token');
     return true;
   }
 
   static async getCurrentUser() {
-    const storedUser = localStorage.getItem('auth_user');
-    const storedToken = localStorage.getItem('auth_token');
+    const storedUser = sessionStorage.getItem('auth_user');
+    const storedToken = sessionStorage.getItem('auth_token');
     if (storedUser && storedToken) {
       return JSON.parse(storedUser);
     }
@@ -108,7 +108,7 @@ export default class AuthService {
   }
 
   static getAuthToken() {
-    return localStorage.getItem('auth_token');
+    return sessionStorage.getItem('auth_token');
   }
 
   static isAuthenticated() {
