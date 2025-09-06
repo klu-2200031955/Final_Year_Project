@@ -430,3 +430,69 @@ resource "aws_api_gateway_stage" "production" {
   rest_api_id   = aws_api_gateway_rest_api.inventory_api.id
   stage_name    = "prod"
 }
+
+## Pre-Warming (Scheduled Invocations) ##
+# EventBridge Rule to trigger every 5 minutes
+resource "aws_cloudwatch_event_rule" "lambda_warmup_rule" {
+  name                = "inventory-lambda-warmup"
+  description         = "Keep Inventory Lambdas warm to reduce cold starts"
+  schedule_expression = "rate(5 minutes)"
+}
+
+# Target: warm up all CRUD Lambdas (can choose one or all)
+resource "aws_cloudwatch_event_target" "lambda_warmup_target_get" {
+  rule      = aws_cloudwatch_event_rule.lambda_warmup_rule.name
+  target_id = "warmup-get-items"
+  arn       = aws_lambda_function.get_items.arn
+}
+
+resource "aws_cloudwatch_event_target" "lambda_warmup_target_add" {
+  rule      = aws_cloudwatch_event_rule.lambda_warmup_rule.name
+  target_id = "warmup-add-item"
+  arn       = aws_lambda_function.add_item.arn
+}
+
+resource "aws_cloudwatch_event_target" "lambda_warmup_target_update" {
+  rule      = aws_cloudwatch_event_rule.lambda_warmup_rule.name
+  target_id = "warmup-update-item"
+  arn       = aws_lambda_function.update_item.arn
+}
+
+resource "aws_cloudwatch_event_target" "lambda_warmup_target_delete" {
+  rule      = aws_cloudwatch_event_rule.lambda_warmup_rule.name
+  target_id = "warmup-delete-item"
+  arn       = aws_lambda_function.delete_item.arn
+}
+
+# Permissions: Allow EventBridge to invoke Lambdas
+resource "aws_lambda_permission" "allow_eventbridge_invoke_get" {
+  statement_id  = "AllowEventBridgeInvokeGet"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.get_items.function_name
+  principal     = "events.amazonaws.com"
+  source_arn    = aws_cloudwatch_event_rule.lambda_warmup_rule.arn
+}
+
+resource "aws_lambda_permission" "allow_eventbridge_invoke_add" {
+  statement_id  = "AllowEventBridgeInvokeAdd"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.add_item.function_name
+  principal     = "events.amazonaws.com"
+  source_arn    = aws_cloudwatch_event_rule.lambda_warmup_rule.arn
+}
+
+resource "aws_lambda_permission" "allow_eventbridge_invoke_update" {
+  statement_id  = "AllowEventBridgeInvokeUpdate"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.update_item.function_name
+  principal     = "events.amazonaws.com"
+  source_arn    = aws_cloudwatch_event_rule.lambda_warmup_rule.arn
+}
+
+resource "aws_lambda_permission" "allow_eventbridge_invoke_delete" {
+  statement_id  = "AllowEventBridgeInvokeDelete"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.delete_item.function_name
+  principal     = "events.amazonaws.com"
+  source_arn    = aws_cloudwatch_event_rule.lambda_warmup_rule.arn
+}
