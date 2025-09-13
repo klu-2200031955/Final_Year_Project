@@ -1,15 +1,13 @@
 const { handler } = require("../deleteItem");
 const { DynamoDBDocumentClient, GetCommand, DeleteCommand } = require("@aws-sdk/lib-dynamodb");
 
-jest.mock("@aws-sdk/lib-dynamodb", () => {
-  return {
-    DynamoDBDocumentClient: {
-      from: jest.fn(() => ({ send: jest.fn() }))
-    },
-    GetCommand: jest.fn(),
-    DeleteCommand: jest.fn()
-  };
-});
+jest.mock("@aws-sdk/lib-dynamodb", () => ({
+  DynamoDBDocumentClient: {
+    from: jest.fn(() => ({ send: jest.fn() }))
+  },
+  GetCommand: jest.fn(function (args) { return { ...args }; }),
+  DeleteCommand: jest.fn(function (args) { return { ...args }; })
+}));
 
 describe("deleteItem Lambda", () => {
   let mockSend;

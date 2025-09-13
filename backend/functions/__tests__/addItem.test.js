@@ -1,14 +1,13 @@
 const { handler } = require("../addItem");
 const { DynamoDBDocumentClient, PutCommand } = require("@aws-sdk/lib-dynamodb");
 
-jest.mock("@aws-sdk/lib-dynamodb", () => {
-  return {
-    DynamoDBDocumentClient: {
-      from: jest.fn(() => ({ send: jest.fn() }))
-    },
-    PutCommand: jest.fn()
-  };
-});
+jest.mock("@aws-sdk/lib-dynamodb", () => ({
+  DynamoDBDocumentClient: {
+    from: jest.fn(() => ({ send: jest.fn() }))
+  },
+  // Return an object so expect.any(PutCommand) works
+  PutCommand: jest.fn(function (args) { return { ...args }; })
+}));
 
 describe("addItem Lambda", () => {
   let mockSend;

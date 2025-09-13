@@ -1,14 +1,12 @@
 const { handler } = require("../getItems");
 const { DynamoDBDocumentClient, QueryCommand } = require("@aws-sdk/lib-dynamodb");
 
-jest.mock("@aws-sdk/lib-dynamodb", () => {
-  return {
-    DynamoDBDocumentClient: {
-      from: jest.fn(() => ({ send: jest.fn() }))
-    },
-    QueryCommand: jest.fn()
-  };
-});
+jest.mock("@aws-sdk/lib-dynamodb", () => ({
+  DynamoDBDocumentClient: {
+    from: jest.fn(() => ({ send: jest.fn() }))
+  },
+  QueryCommand: jest.fn(function (args) { return { ...args }; })
+}));
 
 describe("getItems Lambda", () => {
   let mockSend;
