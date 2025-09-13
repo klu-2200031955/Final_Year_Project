@@ -1,20 +1,19 @@
-const { handler } = require("../getItems");
-const { DynamoDBDocumentClient, QueryCommand } = require("@aws-sdk/lib-dynamodb");
+const mockSend = jest.fn();
+jest.mock("@aws-sdk/lib-dynamodb", () => {
+  const actual = jest.requireActual("@aws-sdk/lib-dynamodb");
+  return {
+    ...actual,
+    DynamoDBDocumentClient: {
+      from: jest.fn(() => ({ send: mockSend }))
+    }
+  };
+});
 
-jest.mock("@aws-sdk/lib-dynamodb", () => ({
-  DynamoDBDocumentClient: {
-    from: jest.fn(() => ({ send: jest.fn() }))
-  },
-  QueryCommand: jest.fn(function (args) { return { ...args }; })
-}));
+const { handler } = require("../getItems");
 
 describe("getItems Lambda", () => {
-  let mockSend;
 
-  beforeEach(() => {
-    mockSend = jest.fn();
-    DynamoDBDocumentClient.from.mockReturnValue({ send: mockSend });
-  });
+  beforeEach(() => mockSend.mockReset());
 
   it("should return items for user", async () => {
     mockSend.mockResolvedValue({ Items: [{ id: "1", name: "Laptop" }] });

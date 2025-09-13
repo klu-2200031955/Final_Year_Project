@@ -1,21 +1,21 @@
-const { handler } = require("../addItem");
-const { DynamoDBDocumentClient, PutCommand } = require("@aws-sdk/lib-dynamodb");
+// ---- mock before importing handler ----
+const mockSend = jest.fn();
+jest.mock("@aws-sdk/lib-dynamodb", () => {
+  const actual = jest.requireActual("@aws-sdk/lib-dynamodb");
+  return {
+    ...actual,
+    DynamoDBDocumentClient: {
+      from: jest.fn(() => ({ send: mockSend }))
+    }
+  };
+});
 
-jest.mock("@aws-sdk/lib-dynamodb", () => ({
-  DynamoDBDocumentClient: {
-    from: jest.fn(() => ({ send: jest.fn() }))
-  },
-  // Return an object so expect.any(PutCommand) works
-  PutCommand: jest.fn(function (args) { return { ...args }; })
-}));
+const { handler } = require("../addItem");
+const { PutCommand } = require("@aws-sdk/lib-dynamodb");
 
 describe("addItem Lambda", () => {
-  let mockSend;
 
-  beforeEach(() => {
-    mockSend = jest.fn();
-    DynamoDBDocumentClient.from.mockReturnValue({ send: mockSend });
-  });
+  beforeEach(() => mockSend.mockReset());
 
   it("should add item successfully", async () => {
     mockSend.mockResolvedValue({});
