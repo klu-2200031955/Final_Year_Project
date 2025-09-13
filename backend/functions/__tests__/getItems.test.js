@@ -10,7 +10,6 @@ jest.mock("@aws-sdk/lib-dynamodb", () => {
 });
 
 const { handler } = require("../getItems");
-
 describe("getItems Lambda", () => {
 
   beforeEach(() => mockSend.mockReset());
