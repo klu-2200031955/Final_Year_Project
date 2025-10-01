@@ -39,7 +39,35 @@ exports.handler = async (event) => {
       };
     }
 
-    const { id, userId: _omitUserId,...updates } = body;
+    const existingItem = itemResult.Item;
+    const now = new Date().toISOString();
+
+    // Calculate quantity change if quantity is being updated
+    let quantityChange = 0;
+    if (body.quantity !== undefined && body.quantity !== existingItem.quantity) {
+      quantityChange = body.quantity - existingItem.quantity;
+    }
+
+    // Check if item is being sold out (quantity going to 0)
+    const isSoldOut = body.quantity === 0 && existingItem.quantity > 0;
+
+    const { id, userId: _omitUserId, ...updates } = body;
+    
+    // Add tracking fields
+    updates.updatedAt = now;
+    
+    if (quantityChange !== 0) {
+      updates.lastQuantityChange = quantityChange;
+      updates.lastQuantityChangeDate = now;
+    }
+    
+    if (isSoldOut) {
+      updates.soldOutAt = now;
+    } else if (body.quantity > 0 && existingItem.quantity === 0) {
+      // Item restocked, clear soldOutAt
+      updates.soldOutAt = null;
+    }
+
     const updateExpr = [];
     const ExpressionAttributeNames = {};
     const ExpressionAttributeValues = {};

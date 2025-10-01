@@ -25,6 +25,17 @@ exports.handler = async (event) => {
 
   try {
     const data = await db.send(new QueryCommand(params));
+    
+    // Ensure all items have the required tracking fields
+    const items = (data.Items || []).map(item => ({
+      ...item,
+      createdAt: item.createdAt || new Date().toISOString(),
+      updatedAt: item.updatedAt || item.createdAt || new Date().toISOString(),
+      lastQuantityChange: item.lastQuantityChange || 0,
+      lastQuantityChangeDate: item.lastQuantityChangeDate || item.createdAt || new Date().toISOString(),
+      soldOutAt: item.soldOutAt || null
+    }));
+
     return {
       statusCode: 200,
       headers: {
@@ -32,7 +43,7 @@ exports.handler = async (event) => {
         "Access-Control-Allow-Headers": "*",
         "Access-Control-Allow-Methods": "GET, POST, OPTIONS,PUT, DELETE"
       },
-      body: JSON.stringify(data.Items)
+      body: JSON.stringify(items)
     };
   } catch (err) {
     console.error("Error fetching items:", err);

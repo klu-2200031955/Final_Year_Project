@@ -45,7 +45,10 @@ exports.handler = async (event) => {
         "Access-Control-Allow-Headers": "*",
         "Access-Control-Allow-Methods": "GET, POST, OPTIONS,PUT, DELETE"
       },
-      body: JSON.stringify({ message: "Item deleted successfully" })
+      body: JSON.stringify({ 
+        message: "Item deleted successfully",
+        deletedItem: result.Item 
+      })
     };
   } catch (err) {
     console.error("Error deleting item:", err);

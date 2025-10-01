@@ -17,6 +17,8 @@ exports.handler = async (event) => {
     };
   }
 
+  const now = new Date().toISOString();
+
   const params = {
     TableName: process.env.TABLE_NAME,
     Item: {
@@ -28,7 +30,12 @@ exports.handler = async (event) => {
       category: body.category,
       quantity: body.quantity,
       price: body.price,
-      createdAt: body.createdAt
+      createdAt: body.createdAt || now,
+      updatedAt: now,
+      // Initialize tracking fields
+      lastQuantityChange: body.quantity || 0,
+      lastQuantityChangeDate: now,
+      soldOutAt: body.quantity === 0 ? now : null
     }
   };
 
@@ -41,7 +48,7 @@ exports.handler = async (event) => {
         "Access-Control-Allow-Headers": "*",
         "Access-Control-Allow-Methods": "GET, POST, OPTIONS,PUT, DELETE"
       },
-      body: JSON.stringify({ message: "Item added successfully" })
+      body: JSON.stringify({ message: "Item added successfully", item: params.Item })
     };
   } catch (err) {
     console.error("Error:", err);

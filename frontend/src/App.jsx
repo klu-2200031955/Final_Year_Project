@@ -1,14 +1,15 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
-  User, Package, LogOut, Plus, Trash2, Search, AlertCircle, CheckCircle
+  User, Package, LogOut, Plus, Trash2, Search, AlertCircle, CheckCircle, BarChart3
 } from 'lucide-react';
 import Login from './components/Login';
 import SignUp from './components/SignUp';
 import InventoryList from './components/InventoryList';
 import AddInventoryForm from './components/AddInventoryForm';
 import EditInventoryForm from './components/EditInventoryForm';
+import InventoryAnalysis from './components/InventoryAnalysis';
 import AuthService from './services/AuthService';
-import ApiService from './services/ApiService';
+import ApiService  from './services/ApiService';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -20,6 +21,7 @@ function App() {
   const [showAddForm, setShowAddForm] = useState(false);
   const [showEditForm, setShowEditForm] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
+  const [showAnalysis, setShowAnalysis] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [notification, setNotification] = useState(null);
   const [authPage, setAuthPage] = useState('login');
@@ -290,6 +292,13 @@ function App() {
               <Plus className="h-5 w-5 mr-2" />
               Add Item
             </button>
+            <button
+              onClick={() => setShowAnalysis(true)}
+              className="flex items-center px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+            >
+              <BarChart3 className="h-5 w-5 mr-2" />
+              Analysis
+            </button>
           </div>
         </div>
 
@@ -319,6 +328,13 @@ function App() {
             setShowEditForm(false);
             setEditingItem(null);
           }}
+        />
+      )}
+
+      {showAnalysis && (
+        <InventoryAnalysis
+          inventory={inventory}
+          onClose={() => setShowAnalysis(false)}
         />
       )}
     </div>

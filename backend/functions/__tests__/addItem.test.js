@@ -17,7 +17,7 @@ describe("addItem Lambda", () => {
 
   beforeEach(() => mockSend.mockReset());
 
-  it("should add item successfully", async () => {
+  it("should add item successfully with tracking fields", async () => {
     mockSend.mockResolvedValue({});
     const event = {
       body: JSON.stringify({
@@ -35,8 +35,32 @@ describe("addItem Lambda", () => {
     };
     const result = await handler(event);
     expect(result.statusCode).toBe(200);
-    expect(JSON.parse(result.body).message).toBe("Item added successfully");
+    const body = JSON.parse(result.body);
+    expect(body.message).toBe("Item added successfully");
+    expect(body.item).toHaveProperty('updatedAt');
+    expect(body.item).toHaveProperty('lastQuantityChange', 5);
+    expect(body.item).toHaveProperty('lastQuantityChangeDate');
     expect(mockSend).toHaveBeenCalledWith(expect.any(PutCommand));
+  });
+
+  it("should set soldOutAt when quantity is 0", async () => {
+    mockSend.mockResolvedValue({});
+    const event = {
+      body: JSON.stringify({
+        id: "2",
+        name: "Out of Stock Item",
+        category: "Test",
+        quantity: 0,
+        price: 100
+      }),
+      requestContext: {
+        authorizer: { claims: { sub: "user123", email: "test@example.com" } }
+      }
+    };
+    const result = await handler(event);
+    expect(result.statusCode).toBe(200);
+    const body = JSON.parse(result.body);
+    expect(body.item.soldOutAt).not.toBeNull();
   });
 
   it("should fail if no userId", async () => {
