@@ -29,21 +29,27 @@ const Login = ({ onLogin, onSwitchToSignUp }) => {
   };
 
   const getErrorMessage = (error) => {
-    // Handle different Cognito error codes
-    if (error.code === 'NotAuthorizedException') {
+    // Log the error for debugging
+    console.log('Error object:', error);
+    
+    // Check both error.code and error.name for Cognito errors
+    const errorCode = error?.code || error?.name || '';
+    const errorMessage = error?.message || '';
+    
+    if (errorCode === 'NotAuthorizedException' || errorMessage.includes('Incorrect username or password')) {
       return 'Incorrect email or password. Please try again.';
-    } else if (error.code === 'UserNotFoundException') {
+    } else if (errorCode === 'UserNotFoundException' || errorMessage.includes('User does not exist')) {
       return 'No account found with this email address.';
-    } else if (error.code === 'UserNotConfirmedException') {
+    } else if (errorCode === 'UserNotConfirmedException' || errorMessage.includes('User is not confirmed')) {
       return 'Please verify your email address before logging in.';
-    } else if (error.code === 'PasswordResetRequiredException') {
+    } else if (errorCode === 'PasswordResetRequiredException') {
       return 'Password reset is required for this account.';
-    } else if (error.code === 'TooManyRequestsException' || error.code === 'TooManyFailedAttemptsException') {
+    } else if (errorCode === 'TooManyRequestsException' || errorCode === 'TooManyFailedAttemptsException' || errorMessage.includes('Too many')) {
       return 'Too many failed attempts. Please try again later.';
-    } else if (error.code === 'InvalidParameterException') {
+    } else if (errorCode === 'InvalidParameterException') {
       return 'Invalid email or password format.';
-    } else if (error.message) {
-      return error.message;
+    } else if (errorMessage) {
+      return errorMessage;
     }
     return 'Login failed. Please check your credentials and try again.';
   };
@@ -63,9 +69,11 @@ const Login = ({ onLogin, onSwitchToSignUp }) => {
     try {
       await onLogin(credentials);
     } catch (error) {
-      console.error('Login error:', error);
+      console.error('Login error caught:', error);
+      const errorMessage = getErrorMessage(error);
+      console.log('Displaying error message:', errorMessage);
       setErrors({ 
-        submit: getErrorMessage(error)
+        submit: errorMessage
       });
     } finally {
       setLoading(false);

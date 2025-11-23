@@ -59,7 +59,7 @@ export default class AuthService {
       });
 
       user.authenticateUser(authDetails, {
-          onSuccess: session => {
+        onSuccess: session => {
           const accessToken = session.getAccessToken().getJwtToken();
           const idToken = session.getIdToken().getJwtToken();
 
@@ -68,9 +68,9 @@ export default class AuthService {
 
           const userData = {
             email,
-            accessToken, // You can still keep this if needed elsewhere
+            accessToken,
             idToken,
-            userId // or sub
+            userId
           };
 
           sessionStorage.setItem('auth_user', JSON.stringify(userData));
@@ -78,7 +78,17 @@ export default class AuthService {
           resolve(userData);
         },
         onFailure: err => {
-          reject(err);
+          // Enhanced error handling - ensure error details are preserved
+          console.error('Authentication failed:', err);
+          
+          // Create a structured error object
+          const error = {
+            code: err.code || err.name,
+            message: err.message,
+            name: err.name
+          };
+          
+          reject(error);
         }
       });
     });
