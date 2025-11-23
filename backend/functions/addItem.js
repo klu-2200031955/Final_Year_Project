@@ -32,7 +32,6 @@ exports.handler = async (event) => {
       price: body.price,
       createdAt: body.createdAt || now,
       updatedAt: now,
-      // Initialize tracking fields
       lastQuantityChange: body.quantity || 0,
       lastQuantityChangeDate: now,
       soldOutAt: body.quantity === 0 ? now : null
