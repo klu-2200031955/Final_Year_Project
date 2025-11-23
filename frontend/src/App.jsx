@@ -47,7 +47,7 @@ function App() {
   const loadInventory = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await ApiService.getInventory(); // No longer pass user.sub
+      const data = await ApiService.getInventory();
       setInventory(data);
     } catch (error) {
       showNotification('Failed to load inventory.', 'error');
@@ -55,7 +55,7 @@ function App() {
     } finally {
      setLoading(false);
     }
-  }, []); // Remove user from dependency array
+  }, []);
   
   useEffect(() => {
     if (isAuthenticated && user) {
@@ -70,8 +70,9 @@ function App() {
       setUser(authData);
       showNotification('Successfully logged in.', 'success');
     } catch (error) {
-      showNotification('Login failed. Check credentials.', 'error');
       console.error('Error logging in:', error);
+      // Re-throw the error so Login component can catch it
+      throw error;
     }
   };
 
@@ -87,7 +88,7 @@ function App() {
   };
 
   const handleConfirmSignUp = async (code) => {
-    const email = sessionStorage.getItem('signup_email'); // ✅ retrieve email here
+    const email = sessionStorage.getItem('signup_email');
     if (!email || !confirmationCode) {
       console.error("Missing email or confirmation code");
       return;
@@ -142,7 +143,7 @@ function App() {
 
   const handleDeleteItem = async (itemId) => {
     try {
-      await ApiService.deleteInventoryItem(itemId); // pass userId
+      await ApiService.deleteInventoryItem(itemId);
       setInventory(prev => prev.filter(item => item.id !== itemId));
       showNotification('Item deleted.', 'success');
     } catch (error) {
@@ -197,7 +198,7 @@ function App() {
     return (
       <div className="min-h-screen flex justify-center items-center bg-blue-50">
         <div className="text-center">
-          <div className="anite-spin rounded-full h-16 w-16 border-4 border-blue-500 border-t-transparent mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-500 border-t-transparent mx-auto mb-4"></div>
           <p className="text-gray-600 text-lg">Loading...</p>
         </div>
       </div>
