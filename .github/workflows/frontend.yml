@@ -5,6 +5,9 @@ on:
     workflows: ["Backend Deploy (Terraform)"]
     types:
       - completed
+  push:
+    branches:
+      - frontend
 
 jobs:
   build-and-deploy:
