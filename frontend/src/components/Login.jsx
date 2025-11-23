@@ -28,6 +28,26 @@ const Login = ({ onLogin, onSwitchToSignUp }) => {
     return newErrors;
   };
 
+  const getErrorMessage = (error) => {
+    // Handle different Cognito error codes
+    if (error.code === 'NotAuthorizedException') {
+      return 'Incorrect email or password. Please try again.';
+    } else if (error.code === 'UserNotFoundException') {
+      return 'No account found with this email address.';
+    } else if (error.code === 'UserNotConfirmedException') {
+      return 'Please verify your email address before logging in.';
+    } else if (error.code === 'PasswordResetRequiredException') {
+      return 'Password reset is required for this account.';
+    } else if (error.code === 'TooManyRequestsException' || error.code === 'TooManyFailedAttemptsException') {
+      return 'Too many failed attempts. Please try again later.';
+    } else if (error.code === 'InvalidParameterException') {
+      return 'Invalid email or password format.';
+    } else if (error.message) {
+      return error.message;
+    }
+    return 'Login failed. Please check your credentials and try again.';
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -43,8 +63,9 @@ const Login = ({ onLogin, onSwitchToSignUp }) => {
     try {
       await onLogin(credentials);
     } catch (error) {
+      console.error('Login error:', error);
       setErrors({ 
-        submit: error.message || 'Login failed. Please check your credentials and try again.' 
+        submit: getErrorMessage(error)
       });
     } finally {
       setLoading(false);
@@ -58,6 +79,10 @@ const Login = ({ onLogin, onSwitchToSignUp }) => {
     // Clear error for this field when user starts typing
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
+    }
+    // Clear submit error when user starts typing
+    if (errors.submit) {
+      setErrors(prev => ({ ...prev, submit: '' }));
     }
   };
 
@@ -84,7 +109,7 @@ const Login = ({ onLogin, onSwitchToSignUp }) => {
             {errors.submit && (
               <div className="bg-red-50 border border-red-200 rounded-lg p-4">
                 <div className="flex items-center space-x-2">
-                  <AlertCircle className="h-5 w-5 text-red-600" />
+                  <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0" />
                   <p className="text-sm text-red-800">{errors.submit}</p>
                 </div>
               </div>
