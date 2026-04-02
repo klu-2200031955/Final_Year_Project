@@ -90,6 +90,7 @@ describe("getItems Lambda", () => {
   });
 
   it("should handle database errors gracefully", async () => {
+    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     mockSend.mockRejectedValue(new Error("Database error"));
     
     const event = {
@@ -99,5 +100,7 @@ describe("getItems Lambda", () => {
     const result = await handler(event);
     expect(result.statusCode).toBe(500);
     expect(JSON.parse(result.body).error).toBe("Could not fetch items");
+    
+    consoleSpy.mockRestore();
   });
 });

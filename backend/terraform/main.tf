@@ -56,8 +56,16 @@ resource "aws_iam_role_policy" "dynamodb_access_policy" {
 resource "aws_dynamodb_table" "inventory_table" {
   name         = var.table_name
   billing_mode = "PAY_PER_REQUEST"
-  hash_key     = "userId"
-  range_key    = "id"
+
+  key_schema {
+    attribute_name = "userId"
+    key_type       = "HASH"
+  }
+
+  key_schema {
+    attribute_name = "id"
+    key_type       = "RANGE"
+  }
 
   attribute {
     name = "userId"
@@ -77,16 +85,28 @@ resource "aws_dynamodb_table" "inventory_table" {
   # Global Secondary Index for querying by ID alone
   global_secondary_index {
     name            = "IdIndex"
-    hash_key        = "id"
     projection_type = "ALL"
+
+    key_schema {
+      attribute_name = "id"
+      key_type       = "HASH"
+    }
   }
 
   # Global Secondary Index for querying by category
   global_secondary_index {
     name            = "CategoryIndex"
-    hash_key        = "category"
-    range_key       = "userId"
     projection_type = "ALL"
+
+    key_schema {
+      attribute_name = "category"
+      key_type       = "HASH"
+    }
+
+    key_schema {
+      attribute_name = "userId"
+      key_type       = "RANGE"
+    }
   }
 
   tags = {
