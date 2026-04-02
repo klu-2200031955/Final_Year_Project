@@ -26,7 +26,6 @@ exports.handler = async (event) => {
   try {
     const data = await db.send(new QueryCommand(params));
     
-    // Ensure all items have the required tracking fields
     const items = (data.Items || []).map(item => ({
       ...item,
       createdAt: item.createdAt || new Date().toISOString(),
