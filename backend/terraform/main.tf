@@ -57,15 +57,8 @@ resource "aws_dynamodb_table" "inventory_table" {
   name         = var.table_name
   billing_mode = "PAY_PER_REQUEST"
 
-  key_schema {
-    attribute_name = "userId"
-    key_type       = "HASH"
-  }
-
-  key_schema {
-    attribute_name = "id"
-    key_type       = "RANGE"
-  }
+  hash_key  = "userId"
+  range_key = "id"
 
   attribute {
     name = "userId"
@@ -87,10 +80,7 @@ resource "aws_dynamodb_table" "inventory_table" {
     name            = "IdIndex"
     projection_type = "ALL"
 
-    key_schema {
-      attribute_name = "id"
-      key_type       = "HASH"
-    }
+    hash_key        = "id"
   }
 
   # Global Secondary Index for querying by category
@@ -98,15 +88,8 @@ resource "aws_dynamodb_table" "inventory_table" {
     name            = "CategoryIndex"
     projection_type = "ALL"
 
-    key_schema {
-      attribute_name = "category"
-      key_type       = "HASH"
-    }
-
-    key_schema {
-      attribute_name = "userId"
-      key_type       = "RANGE"
-    }
+    hash_key        = "category"
+    range_key       = "userId"
   }
 
   tags = {
