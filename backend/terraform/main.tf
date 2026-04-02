@@ -101,7 +101,7 @@ resource "aws_dynamodb_table" "inventory_table" {
 resource "aws_api_gateway_authorizer" "cognito_auth" {
   name        = "cognito-authorizer"
   rest_api_id = aws_api_gateway_rest_api.inventory_api.id
-  authorizer_uri = "arn:aws:apigateway:${var.aws_region}:lambda:path/2015-03-31/functions/${aws_lambda_function.get_items.arn}/invocations" # REMOVE THIS LINE
+
   identity_source = "method.request.header.Authorization"
   type        = "COGNITO_USER_POOLS"
   provider_arns = [aws_cognito_user_pool.inventory_user_pool.arn]
